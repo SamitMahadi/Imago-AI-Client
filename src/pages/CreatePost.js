@@ -17,22 +17,12 @@ const CreatePost = () => {
     const [loading, setLoading] = useState(false);
 
 
-    const handleSubmit = () => {
-
-    }
-
     const handleChange = (e) => {
 
         setForm({ ...form, [e.target.name]: e.target.value })
 
     }
-    const handleSurpriseMe = () => {
-
-        const randomPrompt = getRandomPrompt(form.prompt)
-        setForm({ ...form, prompt: randomPrompt })
-
-    }
-
+  
 
     const generateImage = async () => {
         if (form.prompt) {
@@ -56,13 +46,51 @@ const CreatePost = () => {
 
                 alert(error);
 
-            }finally{
+            } finally {
                 setgeneratingImg(false);
             }
-        } else{
+        } else {
             alert('please enter a prompt')
         }
     }
+
+
+
+  
+    
+    const handleSurpriseMe = () => {
+
+        const randomPrompt = getRandomPrompt(form.prompt)
+        setForm({ ...form, prompt: randomPrompt })
+
+    }
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        if (form.prompt && form.photo) {
+            setLoading(true)
+            try {
+                const response = await fetch('http://localhost:5000/api/v1/post', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(form)
+                })
+
+                await response.json();
+                
+                navigate('/')
+
+            } catch (err) {
+                alert(err)
+            } finally {
+                setLoading(false)
+            }
+        } else {
+            alert('please enter a prompt and generate an image')
+        }
+    }
+   
 
     return (
         <section className='max-w-7xl mx-auto'>
@@ -79,15 +107,17 @@ const CreatePost = () => {
                         name='name'
                         placeholder='John Doe'
                         value={form.name}
-                        hanndleChange={handleChange}
+                        handleChange={handleChange}
+
                     ></FormField>
+
                     <FormField
                         labelName='Prompt'
                         type='text'
-                        name='Prompt'
+                        name='prompt'
                         placeholder='A hamburger in the shape of a Rubik’s cube, professional food photography'
                         value={form.prompt}
-                        hanndleChange={handleChange}
+                        handleChange={handleChange}
                         isSurpriseMe
                         handleSurpriseMe={handleSurpriseMe}
                     ></FormField>
@@ -120,7 +150,7 @@ const CreatePost = () => {
                         Once you have created the image you want , you can share with the community
                     </p>
                     <button type='submit' className=' mt-3 w-full text-white bg-[#6469ff] font-medium rounded-md text-sm  px-5 py-2.5 text-center' >
-                        {loading ? 'Shareing' : 'Share with the Community'}
+                        {loading ? 'Shareing...' : 'Share with the Community'}
                     </button>
 
                 </div>
